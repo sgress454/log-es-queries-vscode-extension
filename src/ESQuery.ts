@@ -1,3 +1,7 @@
+/**
+ * Light class that takes an ES query log (prefixed with `ES: `) and parses it
+ * into its constituent parts.
+ */
 export class ESQuery {
     readonly log:string;
     readonly index:string;
