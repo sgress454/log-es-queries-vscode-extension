@@ -28,6 +28,14 @@
       {
         "command": "codeapalooza.copyCurlPretty",
         "title": "Copy cURL (pretty)"
+      },
+      {
+        "command": "codeapalooza.copyJson",
+        "title": "Copy body JSON"
+      },
+      {
+        "command": "codeapalooza.copyJsonPretty",
+        "title": "Copy body JSON (pretty)"
       }
     ],
     "menus": {
@@ -47,6 +55,14 @@
         {
           "command": "codeapalooza.copyCurlPretty",
           "when": "neverShow"
+        },
+        {
+          "command": "codeapalooza.copyJson",
+          "when": "neverShow"
+        },
+        {
+          "command": "codeapalooza.copyJsonPretty",
+          "when": "neverShow"
         }
       ],
       "view/item/context": [
@@ -56,6 +72,14 @@
         },
         {
           "command": "codeapalooza.copyCurlPretty",
+          "when": "viewItem == esQuery"
+        },
+        {
+          "command": "codeapalooza.copyJson",
+          "when": "viewItem == esQuery"
+        },
+        {
+          "command": "codeapalooza.copyJsonPretty",
           "when": "viewItem == esQuery"
         }
       ]

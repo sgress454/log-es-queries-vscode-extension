@@ -72,10 +72,21 @@ export class ESQueryTreeItem extends vscode.TreeItem {
 
     /**
      * Return a cURL representation of the underlying query.
+     * @param {Boolean} [pretty=false] - if true, add ?pretty to the cURL command.
      * @returns {String} - a cURL command representing a request for the underlying query.
      */
     getCurl(pretty:Boolean=false): string {
         return `curl http://localhost:9200/${this.esQuery.index}/${this.esQuery.type}/_search${pretty?'?pretty':''} -d '${JSON.stringify(this.esQuery.body)}'`;
+    }
+
+    /**
+     * Return a JSON representation of the underlying query.
+     * @param {Boolean} [pretty=false] - if true, add copy the JSON with indenting.
+     * @returns {String} - a cURL command representing a request for the underlying query.
+     */
+    getJson(pretty:Boolean=false): string {
+        const body = JSON.parse(this.esQuery.log).body;
+        return JSON.stringify(body, undefined, pretty ? 2 : undefined);
     }
 }
 

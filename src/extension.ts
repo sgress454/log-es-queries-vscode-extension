@@ -81,9 +81,22 @@ export function activate(context: vscode.ExtensionContext) {
 	const copyCurlPrettyCommandDisposable = vscode.commands.registerCommand('codeapalooza.copyCurlPretty', (item: ESQueryTreeItem) => {
 		vscode.env.clipboard.writeText(item.getCurl(true));
 	});
+	const copyJsonCommandDisposable = vscode.commands.registerCommand('codeapalooza.copyJson', (item: ESQueryTreeItem) => {
+		vscode.env.clipboard.writeText(item.getJson());
+	});
+	const copyJsonPrettyCommandDisposable = vscode.commands.registerCommand('codeapalooza.copyJsonPretty', (item: ESQueryTreeItem) => {
+		vscode.env.clipboard.writeText(item.getJson(true));
+	});
 
 	// Add our disposables so that they're disposed of when the extension deactivates.
-	context.subscriptions.push(esLogQueriesCommandDisposable, noEsLogQueriesCommandDisposable, copyCurlCommandDisposable, copyCurlPrettyCommandDisposable);
+	context.subscriptions.push(
+		esLogQueriesCommandDisposable, 
+		noEsLogQueriesCommandDisposable, 
+		copyCurlCommandDisposable, 
+		copyCurlPrettyCommandDisposable,
+		copyJsonCommandDisposable,
+		copyJsonPrettyCommandDisposable		
+	);
 }
 
 // This method is called when your extension is deactivated
