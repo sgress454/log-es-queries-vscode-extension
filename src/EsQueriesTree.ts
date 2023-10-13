@@ -14,19 +14,33 @@ export class ESQueriesTreeDataProvider implements vscode.TreeDataProvider<ESQuer
     }
   
     getChildren(element?: ESQueryTreeItem): Thenable<ESQueryTreeItem[]> {
-        return Promise.resolve(
-            this.logs.map(log => new ESQueryTreeItem(log))
-        );
+        if (!element) {
+            return Promise.resolve(
+                this.logs.map(log => new ESQueryTreeItem(log))
+            );
+        } else {
+            return Promise.resolve([new ESQueryTreeItem(element.esQuery, true)])
+        }
     }
 }
 
 export class ESQueryTreeItem extends vscode.TreeItem {
     constructor(
-        private esQuery:ESQuery
+        readonly esQuery:ESQuery,
+        detailView?:boolean,
     ) {
-        const time = new Date(esQuery.time).toISOString();
-        const termsCount = esQuery.log.match(/"term"|"terms"|"exists"|"range"|"match"/g)?.length || 0;
-        super(`${time}: ${esQuery.index}/${esQuery.type} (~${termsCount} ${termsCount === 1 ? 'term' : 'terms'})`, vscode.TreeItemCollapsibleState.None);
+        let label:string;
+        let collapsibleState:vscode.TreeItemCollapsibleState;
+        if (!detailView) {
+            const time = new Date(esQuery.time).toISOString();
+            const termsCount = esQuery.log.match(/"term"|"terms"|"exists"|"range"|"match"/g)?.length || 0;
+            collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+            label = `${time}: ${esQuery.index}/${esQuery.type} (~${termsCount} ${termsCount === 1 ? 'term' : 'terms'})`;
+        } else {
+            collapsibleState = vscode.TreeItemCollapsibleState.None;
+            label = esQuery.log;
+        }
+        super(label, collapsibleState);
         this.contextValue = 'esQuery';
     }
 

@@ -57,7 +57,8 @@
       "logEsQueries": [
         {
           "id": "logEsQueries-queries",
-          "name": "Queries"
+          "name": "ES Queries",
+          "contextualTitle": "ES Queries"
         }
       ]
     }
