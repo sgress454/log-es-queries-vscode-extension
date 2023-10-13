@@ -71,6 +71,7 @@ export class ESQueryTreeItem extends vscode.TreeItem {
             label = esQuery.log;
         }
         super(label, collapsibleState);
+        this.tooltip = esQuery.log;
         // This "tags" the tree item so that our custom context menu commands will show for it.
         this.contextValue = 'esQuery';
     }
