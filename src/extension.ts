@@ -6,52 +6,44 @@ import { resolve } from 'path';
 import { ESQuery } from './ESQuery';
 import { ESQueriesTreeDataProvider, ESQueryTreeItem } from './EsQueriesTree';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+// Set up some state vars that will be used when the extension is activated.
 let logs:ESQuery[]=[];
 let treeView:vscode.TreeView<ESQueryTreeItem>;
 let treeViewDataProvider:ESQueriesTreeDataProvider;
 let logTrackerDisposable:vscode.Disposable;
-const rootPath =
-  vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0
-    ? vscode.workspace.workspaceFolders[0].uri.fsPath
-    : undefined;
-if (rootPath) {
-	treeViewDataProvider = new ESQueriesTreeDataProvider(rootPath, logs); 
-}
-
 vscode.commands.executeCommand('setContext', 'esLogExtensionActivated', false); 	
 
 export function activate(context: vscode.ExtensionContext) {
+	// Indicate that the extension is activated, so that the view shows up in the panel.
 	vscode.commands.executeCommand('setContext', 'esLogExtensionActivated', true); 	
 
-	if (!treeView) {
-		treeView = vscode.window.createTreeView('logEsQueries-queries', {
-			treeDataProvider: treeViewDataProvider
-		});	
-	}
-
-	let folder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0] : undefined;
-	let rootPath:string='';
-	if (!folder) {
-		vscode.window.showInformationMessage('Could not determine workspace folder.');
+	// Get the root workspace path, and return if there isn't one.
+	const rootPath =
+	vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0
+	  ? vscode.workspace.workspaceFolders[0].uri.fsPath
+	  : undefined;
+	if (!rootPath) {
 		return;
 	}
-	rootPath = folder.uri.fsPath;
+
+	// Create the tree view.
+	treeViewDataProvider = new ESQueriesTreeDataProvider(rootPath, logs); 
+	treeView = vscode.window.createTreeView('logEsQueries-queries', {
+		treeDataProvider: treeViewDataProvider
+	});	
+
+	// Get the path to the breakpoint we want to set.
 	const targetPath:string = resolve(rootPath, 'node_modules/@elastic/elasticsearch/api/api/search.js');		
 	const uri = vscode.Uri.file(targetPath);
 	const position = new vscode.Position(142, 5); // Set your line and column number
 	const location = new vscode.Location(uri, position);
 	const breakpoint = new vscode.SourceBreakpoint(location, true, undefined, undefined, 'ES: {JSON.stringify(params)}');
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	vscode.commands.executeCommand('setContext', 'esLogBreakpointExists', false); 	
-	
+
+	// Implement the command to start logging.
 	const esLogQueriesCommandDisposable = vscode.commands.registerCommand('codeapalooza.logEsQueries', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-        vscode.debug.addBreakpoints([breakpoint]);		
+		// Add the breakpoint.
+		vscode.debug.addBreakpoints([breakpoint]);		
+		// Indicate that the breakpoint is set.
 		vscode.commands.executeCommand('setContext', 'esLogBreakpointExists', true); 	
 
 		// Create the log tracker.
@@ -70,22 +62,24 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 	});
 
+	// Implement the command to stop logging.
 	const noEsLogQueriesCommandDisposable = vscode.commands.registerCommand('codeapalooza.noLogEsQueries', () => {
-		vscode.window.showInformationMessage(`Number of logs: ${logs.length}`);
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-        vscode.debug.removeBreakpoints([breakpoint]);		
+		// Remove the breakpoint.
+		vscode.debug.removeBreakpoints([breakpoint]);		
+		// Indicate thtat breakpoint is no longer there.
 		vscode.commands.executeCommand('setContext', 'esLogBreakpointExists', false); 	
+		// Dispose of the tracker if it's been set.
 		if (logTrackerDisposable) {
 			logTrackerDisposable.dispose();
 		}
 	});
 
+	// Implement the command to copy a logged query as cURL.
 	const copyCurlCommandDisposable = vscode.commands.registerCommand('codeapalooza.copyCurl', (item: ESQueryTreeItem) => {
 		vscode.env.clipboard.writeText(item.getCurl());
 	});
 
-
+	// Add our disposables so that they're disposed of when the extension deactivates.
 	context.subscriptions.push(esLogQueriesCommandDisposable, noEsLogQueriesCommandDisposable, copyCurlCommandDisposable);
 }
 
