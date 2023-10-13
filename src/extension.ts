@@ -27,10 +27,9 @@ export function activate(context: vscode.ExtensionContext) {
 		  return {
 			// onWillReceiveMessage: m => console.log(`> ${JSON.stringify(m, undefined, 2)}`),
 			onDidSendMessage: m => {
-				console.log(`> ${JSON.stringify(m, undefined, 2)}`);
 				if (m.type === 'event' && m.event === 'output' && m.body.category === 'stdout' && m.body.output.indexOf('ES:') === 0) {
 					logs.push(m.body.output);
-					
+					treeViewDataProvider.refresh();					
 				}
 			}
 		  };
@@ -70,11 +69,11 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	const copyCurlCommandDisposable = vscode.commands.registerCommand('codeapalooza.copyCurl', (item: ESQueryTreeItem) => {
-		console.log(item.tooltip);
+		console.log(item.getCurl());
 	});
 
 
-	context.subscriptions.push(esLogQueriesCommandDisposable, noEsLogQueriesCommandDisposable);
+	context.subscriptions.push(esLogQueriesCommandDisposable, noEsLogQueriesCommandDisposable, copyCurlCommandDisposable);
 }
 
 // This method is called when your extension is deactivated
