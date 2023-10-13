@@ -24,6 +24,10 @@
       {
         "command": "codeapalooza.copyCurl",
         "title": "Copy cURL"
+      },
+      {
+        "command": "codeapalooza.copyCurlPretty",
+        "title": "Copy cURL (pretty)"
       }
     ],
     "menus": {
@@ -39,11 +43,19 @@
         {
           "command": "codeapalooza.copyCurl",
           "when": "neverShow"
+        },
+        {
+          "command": "codeapalooza.copyCurlPretty",
+          "when": "neverShow"
         }
       ],
       "view/item/context": [
         {
           "command": "codeapalooza.copyCurl",
+          "when": "viewItem == esQuery"
+        },
+        {
+          "command": "codeapalooza.copyCurlPretty",
           "when": "viewItem == esQuery"
         }
       ]
