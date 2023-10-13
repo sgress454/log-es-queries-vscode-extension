@@ -14,11 +14,55 @@
   "contributes": {
     "commands": [
       {
-        "command": "codeapalooza.helloWorld",
-        "title": "Hello World"
+        "command": "codeapalooza.logEsQueries",
+        "title": "Log ES Queries"
+      },
+      {
+        "command": "codeapalooza.noLogEsQueries",
+        "title": "Stop Logging ES Queries"
+      },
+      {
+        "command": "codeapalooza.copyCurl",
+        "title": "Copy cURL"
       }
-    ]
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "codeapalooza.logEsQueries",
+          "when": "!esLogBreakpointExists"
+        },
+        {
+          "command": "codeapalooza.noLogEsQueries",
+          "when": "esLogBreakpointExists"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "codeapalooza.copyCurl",
+          "when": "viewItem == esQuery"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "logEsQueries",
+          "title": "ES Queries",
+          "icon": "resources/search.svg"
+        }
+      ]
+    },
+    "views": {
+      "logEsQueries": [
+        {
+          "id": "logEsQueries-queries",
+          "name": "Queries"
+        }
+      ]
+    }
   },
+  "repository": {},
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
