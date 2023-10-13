@@ -50,7 +50,8 @@ export function activate(context: vscode.ExtensionContext) {
 		logTrackerDisposable = vscode.debug.registerDebugAdapterTrackerFactory('*', {
 			createDebugAdapterTracker(session: vscode.DebugSession) {
 			return {
-				// onWillReceiveMessage: m => console.log(`> ${JSON.stringify(m, undefined, 2)}`),
+				// When the debugger sends a message matching our specifications, create an ESQuery instance from it
+				// and push it onto our array, then refresh the tree.
 				onDidSendMessage: m => {
 					if (m.type === 'event' && m.event === 'output' && m.body.category === 'stdout' && m.body.output.indexOf('ES:') === 0) {
 						logs.push(new ESQuery(Date.now(), m.body.output));

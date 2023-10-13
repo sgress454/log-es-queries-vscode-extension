@@ -1,5 +1,10 @@
 import * as vscode from 'vscode';
 import { ESQuery } from './ESQuery';
+
+/**
+ * A class implementing the TreeDataProvider interface.
+ * This will be provided in a call to "createTreeView" to let VSCode know how to traverse and render the tree.
+ */
 export class ESQueriesTreeDataProvider implements vscode.TreeDataProvider<ESQueryTreeItem> {
     // Implement the "onDidChangeTreeData" event.
     // Internally VSCode will handle this event by calling `getChildren()` and re-rendering the tree.
