@@ -11,31 +11,25 @@ import { ESQueriesTreeDataProvider, ESQueryTreeItem } from './EsQueriesTree';
 let logs:ESQuery[]=[];
 let treeView:vscode.TreeView<ESQueryTreeItem>;
 let treeViewDataProvider:ESQueriesTreeDataProvider;
+let logTrackerDisposable:vscode.Disposable;
 const rootPath =
   vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0
     ? vscode.workspace.workspaceFolders[0].uri.fsPath
     : undefined;
 if (rootPath) {
 	treeViewDataProvider = new ESQueriesTreeDataProvider(rootPath, logs); 
-	treeView = vscode.window.createTreeView('logEsQueries-queries', {
-		treeDataProvider: treeViewDataProvider
-	});
 }
 
+vscode.commands.executeCommand('setContext', 'esLogExtensionActivated', false); 	
+
 export function activate(context: vscode.ExtensionContext) {
-	vscode.debug.registerDebugAdapterTrackerFactory('*', {
-		createDebugAdapterTracker(session: vscode.DebugSession) {
-		  return {
-			// onWillReceiveMessage: m => console.log(`> ${JSON.stringify(m, undefined, 2)}`),
-			onDidSendMessage: m => {
-				if (m.type === 'event' && m.event === 'output' && m.body.category === 'stdout' && m.body.output.indexOf('ES:') === 0) {
-					logs.push(new ESQuery(Date.now(), m.body.output));
-					treeViewDataProvider.refresh();					
-				}
-			}
-		  };
-		}
-	});
+	vscode.commands.executeCommand('setContext', 'esLogExtensionActivated', true); 	
+
+	if (!treeView) {
+		treeView = vscode.window.createTreeView('logEsQueries-queries', {
+			treeDataProvider: treeViewDataProvider
+		});	
+	}
 
 	let folder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0] : undefined;
 	let rootPath:string='';
@@ -53,12 +47,27 @@ export function activate(context: vscode.ExtensionContext) {
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
 	vscode.commands.executeCommand('setContext', 'esLogBreakpointExists', false); 	
-
+	
 	const esLogQueriesCommandDisposable = vscode.commands.registerCommand('codeapalooza.logEsQueries', () => {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
         vscode.debug.addBreakpoints([breakpoint]);		
 		vscode.commands.executeCommand('setContext', 'esLogBreakpointExists', true); 	
+
+		// Create the log tracker.
+		logTrackerDisposable = vscode.debug.registerDebugAdapterTrackerFactory('*', {
+			createDebugAdapterTracker(session: vscode.DebugSession) {
+			return {
+				// onWillReceiveMessage: m => console.log(`> ${JSON.stringify(m, undefined, 2)}`),
+				onDidSendMessage: m => {
+					if (m.type === 'event' && m.event === 'output' && m.body.category === 'stdout' && m.body.output.indexOf('ES:') === 0) {
+						logs.push(new ESQuery(Date.now(), m.body.output));
+						treeViewDataProvider.refresh();					
+					}
+				}
+			};
+			}
+		});
 	});
 
 	const noEsLogQueriesCommandDisposable = vscode.commands.registerCommand('codeapalooza.noLogEsQueries', () => {
@@ -67,6 +76,9 @@ export function activate(context: vscode.ExtensionContext) {
 		// Display a message box to the user
         vscode.debug.removeBreakpoints([breakpoint]);		
 		vscode.commands.executeCommand('setContext', 'esLogBreakpointExists', false); 	
+		if (logTrackerDisposable) {
+			logTrackerDisposable.dispose();
+		}
 	});
 
 	const copyCurlCommandDisposable = vscode.commands.registerCommand('codeapalooza.copyCurl', (item: ESQueryTreeItem) => {

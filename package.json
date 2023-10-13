@@ -62,7 +62,8 @@
         {
           "id": "logEsQueries-queries",
           "name": "ES Queries",
-          "contextualTitle": "ES Queries"
+          "contextualTitle": "ES Queries",
+          "when": "esLogExtensionActivated"
         }
       ]
     }
