@@ -3,11 +3,12 @@
 import * as vscode from 'vscode';
 import { resolve } from 'path';
 
+import { ESQuery } from './ESQuery';
 import { ESQueriesTreeDataProvider, ESQueryTreeItem } from './EsQueriesTree';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
-let logs:string[]=[];
+let logs:ESQuery[]=[];
 let treeView:vscode.TreeView<ESQueryTreeItem>;
 let treeViewDataProvider:ESQueriesTreeDataProvider;
 const rootPath =
@@ -28,7 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
 			// onWillReceiveMessage: m => console.log(`> ${JSON.stringify(m, undefined, 2)}`),
 			onDidSendMessage: m => {
 				if (m.type === 'event' && m.event === 'output' && m.body.category === 'stdout' && m.body.output.indexOf('ES:') === 0) {
-					logs.push(m.body.output);
+					logs.push(new ESQuery(Date.now(), m.body.output));
 					treeViewDataProvider.refresh();					
 				}
 			}

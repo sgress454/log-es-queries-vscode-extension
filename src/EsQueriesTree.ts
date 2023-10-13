@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-
+import { ESQuery } from './ESQuery';
 export class ESQueriesTreeDataProvider implements vscode.TreeDataProvider<ESQueryTreeItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<ESQueryTreeItem | undefined | null | void> = new vscode.EventEmitter<ESQueryTreeItem | undefined | null | void>();
     readonly onDidChangeTreeData: vscode.Event<ESQueryTreeItem | undefined | null | void> = this._onDidChangeTreeData.event;
@@ -7,7 +7,7 @@ export class ESQueriesTreeDataProvider implements vscode.TreeDataProvider<ESQuer
         this._onDidChangeTreeData.fire();
     }
 
-    constructor(private workspaceRoot: string, private logs: string[]) {}
+    constructor(private workspaceRoot: string, private logs: ESQuery[]) {}
   
     getTreeItem(element: ESQueryTreeItem): vscode.TreeItem {
       return element;
@@ -15,28 +15,23 @@ export class ESQueriesTreeDataProvider implements vscode.TreeDataProvider<ESQuer
   
     getChildren(element?: ESQueryTreeItem): Thenable<ESQueryTreeItem[]> {
         return Promise.resolve(
-            this.logs.map(log => new ESQueryTreeItem(log.split('ES:')[1]))
+            this.logs.map(log => new ESQueryTreeItem(log))
         );
     }
 }
 
 export class ESQueryTreeItem extends vscode.TreeItem {
-    private index:string;
-    private type:string;
-    private body:object;
     constructor(
-        private log: string
+        private esQuery:ESQuery
     ) {
-        const logObj = JSON.parse(log);
-        super(`${logObj.index}/${logObj.type}`, vscode.TreeItemCollapsibleState.None);
-        this.index = logObj.index;
-        this.type = logObj.type;
-        this.body = logObj.body;
+        const time = new Date(esQuery.time).toISOString();
+        const termsCount = esQuery.log.match(/"term"|"terms"|"exists"|"range"|"match"/g)?.length || 0;
+        super(`${time}: ${esQuery.index}/${esQuery.type} (~${termsCount} ${termsCount === 1 ? 'term' : 'terms'})`, vscode.TreeItemCollapsibleState.None);
         this.contextValue = 'esQuery';
     }
 
     getCurl(): string {
-        return `curl http://localhost:9200/${this.index}/${this.type}/_search -d '${JSON.stringify(this.body)}'`;
+        return `curl http://localhost:9200/${this.esQuery.index}/${this.esQuery.type}/_search -d '${JSON.stringify(this.esQuery.body)}'`;
     }
 }
 
