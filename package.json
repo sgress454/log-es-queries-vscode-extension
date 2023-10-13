@@ -35,6 +35,10 @@
         {
           "command": "codeapalooza.noLogEsQueries",
           "when": "esLogBreakpointExists"
+        },
+        {
+          "command": "codeapalooza.copyCurl",
+          "when": "neverShow"
         }
       ],
       "view/item/context": [
