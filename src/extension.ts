@@ -70,7 +70,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	const copyCurlCommandDisposable = vscode.commands.registerCommand('codeapalooza.copyCurl', (item: ESQueryTreeItem) => {
-		console.log(item.getCurl());
+		vscode.env.clipboard.writeText(item.getCurl());
 	});
 
 
