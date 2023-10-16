@@ -17,8 +17,10 @@ export function activate(context: vscode.ExtensionContext) {
 	// Indicate that the extension is activated, so that the view shows up in the panel.
 	vscode.commands.executeCommand('setContext', 'esLogExtensionActivated', true); 	
 
+	// Get the breakpoint location and log message template string from the config.
 	let { breakpointLocation, logMessageCode} = vscode.workspace.getConfiguration('codeapalooza');
 	breakpointLocation = breakpointLocation.split(':');
+	
 	// Get the root workspace path, and return if there isn't one.
 	const rootPath =
 	vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0
