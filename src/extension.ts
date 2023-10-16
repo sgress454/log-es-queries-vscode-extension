@@ -17,6 +17,8 @@ export function activate(context: vscode.ExtensionContext) {
 	// Indicate that the extension is activated, so that the view shows up in the panel.
 	vscode.commands.executeCommand('setContext', 'esLogExtensionActivated', true); 	
 
+	let { breakpointLocation, logMessageCode} = vscode.workspace.getConfiguration('codeapalooza');
+	breakpointLocation = breakpointLocation.split(':');
 	// Get the root workspace path, and return if there isn't one.
 	const rootPath =
 	vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0
@@ -33,11 +35,11 @@ export function activate(context: vscode.ExtensionContext) {
 	});	
 
 	// Get the path to the breakpoint we want to set.
-	const targetPath:string = resolve(rootPath, 'node_modules/@elastic/elasticsearch/api/api/search.js');		
+	const targetPath:string = resolve(rootPath, breakpointLocation[0]);		
 	const uri = vscode.Uri.file(targetPath);
-	const position = new vscode.Position(142, 5); // Set your line and column number
+	const position = new vscode.Position(parseInt(breakpointLocation[1]), parseInt(breakpointLocation[2])); // Set your line and column number
 	const location = new vscode.Location(uri, position);
-	const breakpoint = new vscode.SourceBreakpoint(location, true, undefined, undefined, 'ES: {JSON.stringify(params)}');
+	const breakpoint = new vscode.SourceBreakpoint(location, true, undefined, undefined, `ES: {${logMessageCode}}`);
 
 	// Implement the command to start logging.
 	const esLogQueriesCommandDisposable = vscode.commands.registerCommand('codeapalooza.logEsQueries', () => {

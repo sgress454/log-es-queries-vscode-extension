@@ -102,6 +102,21 @@
           "when": "esLogExtensionActivated"
         }
       ]
+    },
+    "configuration": {
+      "title": "ES Query Logger",
+      "properties": {
+        "codeapalooza.breakpointLocation": {
+          "type": "string",
+          "default": "node_modules/@elastic/elasticsearch/api/api/search.js:142:5",
+          "description": "The location to add a logpoint to track queries."
+        },
+        "codeapalooza.logMessageCode": {
+          "type": "string",
+          "default": "JSON.stringify(params)",
+          "description": "The code to insert into the logpoint.  The logpoint config will be 'ES: {<code>}'.  The code should output JSON containing at least the index, type and body of an ES query."
+        }
+      }
     }
   },
   "repository": {},
